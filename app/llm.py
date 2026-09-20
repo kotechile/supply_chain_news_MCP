@@ -15,22 +15,32 @@ from app.config import get_config
 logger = logging.getLogger(__name__)
 
 
-def get_llm_client() -> Optional[OpenAI]:
-    """Initialize OpenAI-compatible client for OpenRouter, OpenAI, or Gemini."""
-    config = get_config().get("llm", {})
-    provider = os.environ.get("LLM_PROVIDER", config.get("provider", "openrouter")).lower()
+def resolve_provider() -> str:
+    """Resolve provider with automatic fallback based on available API keys."""
+    explicit = os.environ.get("LLM_PROVIDER")
+    if explicit:
+        return explicit.lower()
 
-    if provider == "openrouter":
-        api_key = os.environ.get("OPENROUTER_API_KEY")
-        if api_key:
-            return OpenAI(
-                base_url="https://openrouter.ai/api/v1",
-                api_key=api_key,
-            )
-    elif provider == "openai":
+    if os.environ.get("OPENAI_API_KEY"):
+        return "openai"
+    if os.environ.get("GEMINI_API_KEY"):
+        return "gemini"
+    if os.environ.get("OPENROUTER_API_KEY"):
+        return "openrouter"
+
+    config_provider = get_config().get("llm", {}).get("provider", "openrouter").lower()
+    return config_provider
+
+
+def get_llm_client() -> Optional[OpenAI]:
+    """Initialize OpenAI-compatible client for OpenAI, Gemini, or OpenRouter."""
+    provider = resolve_provider()
+
+    if provider == "openai":
         api_key = os.environ.get("OPENAI_API_KEY")
         if api_key:
             return OpenAI(api_key=api_key)
+
     elif provider == "gemini":
         api_key = os.environ.get("GEMINI_API_KEY")
         if api_key:
@@ -39,18 +49,36 @@ def get_llm_client() -> Optional[OpenAI]:
                 api_key=api_key,
             )
 
+    elif provider == "openrouter":
+        api_key = os.environ.get("OPENROUTER_API_KEY")
+        if api_key:
+            return OpenAI(
+                base_url="https://openrouter.ai/api/v1",
+                api_key=api_key,
+            )
+
+    # Fallback check: if any key is set regardless of provider
+    if os.environ.get("OPENAI_API_KEY"):
+        return OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    if os.environ.get("GEMINI_API_KEY"):
+        return OpenAI(
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            api_key=os.environ["GEMINI_API_KEY"],
+        )
+
     return None
 
 
 def get_model_name() -> str:
-    config = get_config().get("llm", {})
-    provider = os.environ.get("LLM_PROVIDER", config.get("provider", "openrouter")).lower()
-    if provider == "openrouter":
-        return os.environ.get("LLM_MODEL", config.get("model", "nousresearch/hermes-3-llama-3.1-405b"))
-    elif provider == "openai":
+    provider = resolve_provider()
+    config_model = get_config().get("llm", {}).get("model")
+
+    if provider == "openai":
         return os.environ.get("LLM_MODEL", "gpt-4o-mini")
     elif provider == "gemini":
         return os.environ.get("LLM_MODEL", "gemini-2.0-flash")
+    elif provider == "openrouter":
+        return os.environ.get("LLM_MODEL", config_model or "nousresearch/hermes-3-llama-3.1-405b")
     return "mock"
 
 
