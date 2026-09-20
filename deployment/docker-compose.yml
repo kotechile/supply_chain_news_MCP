@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=UTC
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./data:/data
+    networks:
+      - intel_net
+
+  intel_worker:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ../data:/app/data
+      - ../config.yaml:/app/config.yaml
+    environment:
+      - LLM_PROVIDER=openrouter
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    networks:
+      - intel_net
+    command: ["python", "-m", "app.scheduler"]
+
+volumes:
+  n8n_data:
+
+networks:
+  intel_net:
+    driver: bridge

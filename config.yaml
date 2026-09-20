@@ -1,0 +1,71 @@
+# Supply Chain & IT Intelligence Pipeline Configuration
+
+storage:
+  db_path: "data/intelligence.db"
+
+llm:
+  provider: "openrouter" # "openrouter", "openai", "gemini", or "mock"
+  model: "nousresearch/hermes-3-llama-3.1-405b" # Or "nousresearch/hermes-3-llama-3.1-8b", "gpt-4o-mini", "gemini-2.0-flash"
+  temperature: 0.2
+  max_tokens: 2000
+
+ingest:
+  podcasts:
+    enabled: true
+    sources:
+      - name: "Gartner ThinkCast (Advisory & Tech)"
+        url: "https://rss.libsyn.com/shows/113684/destinations/639641.xml"
+        category: "Enterprise Tech & Strategy"
+        tags: ["Gartner", "Executive Advisory", "IT Strategy"]
+      - name: "The Press Room from Deloitte Insights"
+        url: "https://rss.libsyn.com/shows/67063/destinations/272171.xml"
+        category: "Consulting & Tech"
+        tags: ["Deloitte", "Advisory", "Supply Chain"]
+      - name: "Supply Chain Now"
+        url: "https://feeds.simplecast.com/HFUiz5cM"
+        category: "Supply Chain Operations & Tech"
+        tags: ["Supply Chain", "Operations", "Logistics", "Procurement"]
+
+  newsrooms:
+    enabled: true
+    sources:
+      - name: "Gartner Newsroom"
+        url: "https://www.gartner.com/en/newsroom/rss"
+        category: "Advisory & Research"
+        tags: ["Gartner", "Hype Cycle", "Magic Quadrant"]
+      - name: "Accenture Newsroom"
+        url: "https://newsroom.accenture.com/rss"
+        category: "Consulting & Implementation"
+        tags: ["Accenture", "Consulting", "Enterprise Tech"]
+      - name: "Supply Chain Dive"
+        url: "https://www.supplychaindive.com/feeds/news/"
+        category: "Industry News"
+        tags: ["Operations", "Procurement", "Logistics", "Supply Chain"]
+
+  vendor_reprints:
+    enabled: true
+    search_queries:
+      - '"Magic Quadrant for Supply Chain Planning" filetype:pdf'
+      - '"Magic Quadrant for Warehouse Management Systems" filetype:pdf'
+      - '"Magic Quadrant for Transportation Management Systems" filetype:pdf'
+      - '"Critical Capabilities for Supply Chain Planning" filetype:pdf -site:gartner.com'
+    target_vendors:
+      - "Kinaxis"
+      - "SAP"
+      - "Blue Yonder"
+      - "Manhattan Associates"
+      - "Coupa"
+      - "Oracle"
+      - "o9 Solutions"
+
+mcp:
+  name: "supply-chain-intel"
+  version: "1.0.0"
+  transport: "stdio" # "stdio" or "sse"
+  sse_host: "0.0.0.0"
+  sse_port: 8080
+
+scheduler:
+  newsroom_interval_hours: 6
+  podcast_interval_hours: 12
+  reprints_interval_days: 7

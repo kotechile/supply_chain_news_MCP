@@ -1,0 +1,15 @@
+[Unit]
+Description=Supply Chain & IT Intelligence FastMCP Server
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/public-news-mcp
+EnvironmentFile=/opt/public-news-mcp/.env
+ExecStart=/opt/public-news-mcp/.venv/bin/python -m app.mcp_server
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

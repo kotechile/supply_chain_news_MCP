@@ -1,0 +1,15 @@
+[Unit]
+Description=Supply Chain & IT Intelligence Ingestion Scheduler
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/public-news-mcp
+EnvironmentFile=/opt/public-news-mcp/.env
+ExecStart=/opt/public-news-mcp/.venv/bin/python -m app.scheduler
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

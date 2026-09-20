@@ -1,0 +1,72 @@
+{
+  "name": "Supply Chain Intel - Daily Executive Briefing",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 8,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "1",
+      "name": "Daily at 8:00 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "command": "python -c \"import json, sqlite3; conn = sqlite3.connect('data/intelligence.db'); conn.row_factory = sqlite3.Row; rows = [dict(r) for r in conn.execute('SELECT title, source_name, summary, url FROM documents WHERE created_at >= datetime(\\'now\\', \\'-1 day\\') LIMIT 5').fetchall()]; print(json.dumps(rows))\""
+      },
+      "id": "2",
+      "name": "Fetch Last 24h Intelligence",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=📊 **Daily Supply Chain Advisory Briefing**\n\n{{$json.stdout}}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "3",
+      "name": "Telegram Alert (Optional)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [720, 300]
+    }
+  ],
+  "connections": {
+    "Daily at 8:00 AM": {
+      "main": [
+        [
+          {
+            "node": "Fetch Last 24h Intelligence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Last 24h Intelligence": {
+      "main": [
+        [
+          {
+            "node": "Telegram Alert (Optional)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

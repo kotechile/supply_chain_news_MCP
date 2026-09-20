@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "supply-chain-intel-mcp"
+version = "0.1.0"
+description = "Supply Chain & IT advisory intelligence harvester and FastMCP server"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp>=4.0.0",
+    "feedparser>=6.0.0",
+    "trafilatura>=2.0.0",
+    "httpx>=0.27.0",
+    "pypdf>=5.0.0",
+    "apscheduler>=3.10.0",
+    "pyyaml>=6.0.0",
+    "openai>=1.30.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[project.scripts]
+intel-mcp = "app.cli:main"
