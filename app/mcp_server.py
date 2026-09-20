@@ -4,6 +4,8 @@ import json
 import logging
 from typing import Optional
 from fastmcp import FastMCP
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from app.config import get_config
 from app.db import (
@@ -176,5 +178,56 @@ def get_pipeline_stats() -> str:
     return f"Intelligence Database Health & Statistics:\n```json\n{json.dumps(stats, indent=2)}\n```"
 
 
+# --- Custom HTTP Routes for n8n Webhooks & Health Monitoring ---
+
+@mcp.custom_route("/health", methods=["GET"])
+async def http_health(request: Request) -> JSONResponse:
+    """Health check endpoint for Coolify."""
+    return JSONResponse({"status": "healthy", "service": "public-news-mcp"})
+
+
+@mcp.custom_route("/api/stats", methods=["GET"])
+async def http_stats(request: Request) -> JSONResponse:
+    """Return intelligence statistics as JSON."""
+    return JSONResponse(get_db_stats())
+
+
+@mcp.custom_route("/api/insights/recent", methods=["GET"])
+async def http_recent_insights(request: Request) -> JSONResponse:
+    """Return recent advisory items as JSON for n8n briefings."""
+    days_back = int(request.query_params.get("days_back", 1))
+    limit = int(request.query_params.get("limit", 10))
+    results = get_recent_documents(days_back=days_back, limit=limit)
+    return JSONResponse({"count": len(results), "items": results})
+
+
+@mcp.custom_route("/api/crawl/newsrooms", methods=["POST"])
+async def http_crawl_newsrooms(request: Request) -> JSONResponse:
+    """Trigger newsroom crawl via HTTP (called by n8n)."""
+    max_items = int(request.query_params.get("max", 10))
+    stats = crawl_all_newsrooms(max_items_per_feed=max_items)
+    return JSONResponse({"status": "completed", "ingested": stats})
+
+
+@mcp.custom_route("/api/crawl/podcasts", methods=["POST"])
+async def http_watch_podcasts(request: Request) -> JSONResponse:
+    """Trigger podcast check via HTTP (called by n8n)."""
+    max_items = int(request.query_params.get("max", 5))
+    stats = watch_all_podcasts(max_items_per_feed=max_items)
+    return JSONResponse({"status": "completed", "ingested": stats})
+
+
+@mcp.custom_route("/api/crawl/reprints", methods=["POST"])
+async def http_discover_reprints(request: Request) -> JSONResponse:
+    """Trigger vendor reprint discovery via HTTP."""
+    stats = run_reprint_discovery()
+    return JSONResponse({"status": "completed", "result": stats})
+
+
+# ASGI app for Uvicorn deployment in Coolify / Docker
+app = mcp.http_app()
+
+
 if __name__ == "__main__":
     mcp.run()
+

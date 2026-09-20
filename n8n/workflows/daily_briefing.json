@@ -22,18 +22,20 @@
     },
     {
       "parameters": {
-        "command": "python -c \"import json, sqlite3; conn = sqlite3.connect('data/intelligence.db'); conn.row_factory = sqlite3.Row; rows = [dict(r) for r in conn.execute('SELECT title, source_name, summary, url FROM documents WHERE created_at >= datetime(\\'now\\', \\'-1 day\\') LIMIT 5').fetchall()]; print(json.dumps(rows))\""
+        "method": "GET",
+        "url": "http://public-news-mcp:8080/api/insights/recent?days_back=1&limit=5",
+        "options": {}
       },
       "id": "2",
       "name": "Fetch Last 24h Intelligence",
-      "type": "n8n-nodes-base.executeCommand",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [480, 300]
     },
     {
       "parameters": {
         "chatId": "YOUR_TELEGRAM_CHAT_ID",
-        "text": "=📊 **Daily Supply Chain Advisory Briefing**\n\n{{$json.stdout}}",
+        "text": "=📊 **Daily Supply Chain Advisory Briefing** ({{ $json.count }} new items)\n\n{{ $json.items.map(i => `• *[${i.source_name}]* ${i.title}\n  ${i.summary}\n  🔗 ${i.url}`).join('\\n\\n') }}",
         "additionalFields": {
           "parse_mode": "Markdown"
         }

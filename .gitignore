@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Databases & local data
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# OS & IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Environment secrets
+.env

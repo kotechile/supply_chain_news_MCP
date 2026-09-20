@@ -20,22 +20,26 @@
     },
     {
       "parameters": {
-        "command": "python -m app.cli crawl-newsrooms --max 10"
+        "method": "POST",
+        "url": "http://public-news-mcp:8080/api/crawl/newsrooms?max=10",
+        "options": {}
       },
       "id": "2",
       "name": "Crawl Newsrooms",
-      "type": "n8n-nodes-base.executeCommand",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [480, 200]
     },
     {
       "parameters": {
-        "command": "python -m app.cli watch-podcasts --max 5"
+        "method": "POST",
+        "url": "http://public-news-mcp:8080/api/crawl/podcasts?max=5",
+        "options": {}
       },
       "id": "3",
       "name": "Watch Podcasts",
-      "type": "n8n-nodes-base.executeCommand",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [480, 400]
     }
   ],
