@@ -183,7 +183,7 @@ def get_pipeline_stats() -> str:
 @mcp.custom_route("/health", methods=["GET"])
 async def http_health(request: Request) -> JSONResponse:
     """Health check endpoint for Coolify."""
-    return JSONResponse({"status": "healthy", "service": "public-news-mcp"})
+    return JSONResponse({"status": "healthy", "service": "supply-chain-news-mcp"})
 
 
 @mcp.custom_route("/api/stats", methods=["GET"])
