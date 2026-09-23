@@ -40,7 +40,7 @@ pip install -r requirements.txt
 
 # Configure environment variables
 cp .env.example .env
-# Edit .env and insert your LLM API key (OpenRouter / OpenAI / Gemini)
+# Edit .env and insert your LLM API key (OpenRouter / OpenAI / Gemini / DeepSeek)
 ```
 
 ### 2. Initialize Database & Run Ingestion

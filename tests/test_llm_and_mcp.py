@@ -86,3 +86,33 @@ def test_mcp_tools_flow():
         db.get_db_path = original_get_db_path
         if os.path.exists(db_path):
             os.unlink(db_path)
+
+
+def test_deepseek_provider_and_client(monkeypatch):
+    from app.llm import resolve_provider, get_llm_client, get_model_name
+
+    # Clear conflicting environment variables
+    for var in ["OPENAI_API_KEY", "GEMINI_API_KEY", "OPENROUTER_API_KEY", "LLM_PROVIDER", "LLM_MODEL"]:
+        monkeypatch.delenv(var, raising=False)
+
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-test-deepseek-key")
+
+    # Auto-detection from DEEPSEEK_API_KEY
+    assert resolve_provider() == "deepseek"
+    assert get_model_name() == "deepseek-flash"
+
+    # Explicit override with LLM_MODEL
+    monkeypatch.setenv("LLM_MODEL", "deepseek-v4-pro")
+    assert get_model_name() == "deepseek-v4-pro"
+
+    # Explicit override with LLM_PROVIDER=deepseek
+    monkeypatch.setenv("LLM_PROVIDER", "deepseek")
+    assert resolve_provider() == "deepseek"
+
+    # Client configuration
+    client = get_llm_client()
+    assert client is not None
+    assert str(client.base_url).rstrip("/") == "https://api.deepseek.com"
+    assert client.api_key == "sk-test-deepseek-key"
+
+

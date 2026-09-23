@@ -4,8 +4,8 @@ storage:
   db_path: "data/intelligence.db"
 
 llm:
-  provider: "openrouter" # "openrouter", "openai", "gemini", or "mock"
-  model: "nousresearch/hermes-3-llama-3.1-405b" # Or "nousresearch/hermes-3-llama-3.1-8b", "gpt-4o-mini", "gemini-2.0-flash"
+  provider: "openrouter" # "openrouter", "openai", "gemini", "deepseek", or "mock"
+  model: "nousresearch/hermes-3-llama-3.1-405b" # Or "nousresearch/hermes-3-llama-3.1-8b", "gpt-4o-mini", "gemini-2.0-flash", "deepseek-flash", "deepseek-v4-pro"
   temperature: 0.2
   max_tokens: 2000
 
